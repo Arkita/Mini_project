@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"></meta>
+    <title>MiniProject</title>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+    </script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jStorage/0.4.12/jstorage.min.js">
+    </script>
+	<style>
+
+</style>
+  </head>
+
+<body align="center"><h1 align="center"> Registration</h1>
+
+
+<form>
+  
+<div>
+  Name
+  <input type="text" id="name" value="" required autofocus>
+  </div>
+ 
+ <div id="genderdiv">
+  Gender
+  <input type="radio" id="m1" name="gender" value="male" class="gender"> Male 
+  <input type="radio" id="" name="gender" value="female" class="gender"> Female   
+  </div>
+  
+	<div>
+  Date of Birth
+  <input type="date" id="dob" required>
+  </div>
+  
+  <div id="foidiv">
+  Field of interest(select one)
+  <input type="checkbox" id="ana" name="foi" value="analytics" class="foi" > Analytics
+  <input type="checkbox" id="code" name="foi" value="code" class="foi"> Code<br>
+  </div>
+  
+ 
+  <div style="text-align: center;">
+   <button id="addButton">Add</button>
+
+</div>
+	 
+  <!--here we will have the tables-->
+ 
+  <table id="tableid"  border="1" align="center">
+  <tr id='1'>
+    <th>Name</th>
+    <th>Gender</th>
+    <th>DOB</th>
+	<th>Interest</th>
+  </tr>
+</table>
+
+</form>
+</body>
+
+<script>
+    var savedRecordsArray = [];
+	var cid;
+	var count=1;
+	var edit=true;
+    var initialize = function(){
+        $("#addButton").on("click",addRecord);
+        loadSavedRecords();
+		var cid;
+    };
+
+    var addRecord = function(event){
+        
+		//add to ui
+		if(edit)
+		{
+        var nameval = $("#name").val();
+		if(nameval==""){
+		alert("eneter name");
+		return false;
+		}
+		var genderval = $('#genderdiv input[name=gender]:checked').val();
+		if(genderval==""){
+		alert("enter gender");
+		return false;
+		}
+		var dobval = $("#dob").val();
+		if(dobval==""){
+		alert("eneter date");
+		return false;
+		}
+		var foival = $('#foidiv input[name=foi]:checked').val();
+		
+		var record       = { "name" : nameval, "gender" : genderval,"dob" : dobval,"foi" : foival };
+       //var record       = [nameval,genderval,dobval,foival];
+        //var record= $("savedList").append[enteredValue,genderv,dobv,foiv];
+		showRecord(record);
+		
+        //add to recordSet
+        savedRecordsArray.push(record);
+
+        //save to database
+        save();
+		$('#name').val();
+		$('.gender').prop('checked',false);
+		$('#dob').val();
+		
+		$('#ana').prop('checked',false);
+		$('#code').prop('checked',false);
+        }
+		if(!edit)
+		{
+		edit=true;
+		$('#ana').prop('checked',false);
+		$('#code').prop('checked',false);
+		var nm=$("#name").val();
+		var gr=$('#genderdiv input[name=gender]:checked').val();
+		var db=$("#dob").val();
+		var fi= $('#foidiv input[name=foi]:checked').val();
+		(document.getElementById("tableid").rows[cid].cells[0].innerHTML)=nm ;
+	 (document.getElementById("tableid").rows[cid].cells[1].innerHTML)=gr;
+	(document.getElementById("tableid").rows[cid].cells[2].innerHTML)=db;
+	(document.getElementById("tableid").rows[cid].cells[3].innerHTML)=fi;
+var record       = { "name" : nm, "gender" : gr,"dob" : db,"foi" : fi };
+  
+
+		save();
+		}
+		return false;
+    };
+
+	
+	
+    var save = function(){
+        $.jStorage.set("randomm", savedRecordsArray );
+    }
+
+    var loadSavedRecords = function(){
+        savedRecordsArray = $.jStorage.get("randomm") || [] ;
+        for( let index=0 ; index<savedRecordsArray.length ; ++index ) {
+            showRecord( savedRecordsArray[index] );
+        
+		}
+			
+			};
+
+
+    var showRecord = function(record){
+        //this line creates a new dom element
+        var recordTemplate = $(`<tr id="${count}"><td>${record.name}</td>
+								<td>${record.gender}</td>
+								<td>${record.dob}</td>
+								<td>${record.foi}</td>
+								<td> <button class="editRow">Edit</button></td> 
+								<td> <input type="button" id="delete" value="delete" onclick="deleteRow(this)">
+								</button></td></tr>`);
+		
+		$("#tableid").append(recordTemplate);
+		count++;
+	};
+	
+	 function deleteRow(row){
+      var d = row.parentNode.parentNode.rowIndex;
+      document.getElementById('tableid').deleteRow(d);
+	    savedRecordsArray.pop(d);
+	  save();
+   };
+   
+   
+   
+	 $("#tableid").on('click', '.editRow', function(e){
+	
+		
+		cid=$(this).closest('tr').attr('id');
+		
+	 $("#name").val(document.getElementById("tableid").rows[cid].cells[0].innerHTML);
+	$('#genderdiv input[name=gender]:checked').val(document.getElementById("tableid").rows[cid].cells[1].innerHTML);
+	$("#dob").val(document.getElementById("tableid").rows[cid].cells[2].innerHTML);
+	$('#foidiv input[name=foi]:checked').val(document.getElementById("tableid").rows[cid].cells[3].innerHTML);
+	
+	
+	
+	edit=false;
+	
+	save();
+	return false;
+});
+
+    
+	$(document).ready(initialize);
+	
+  </script>
+</html>
